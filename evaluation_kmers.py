@@ -430,7 +430,7 @@ def evaluate_model_cross(classifier, model, finput):
 
 	df = pd.DataFrame(columns=colnames)
 
-	for i in range(1, n_lines, 50): # read 20 lines at a time
+	for i in range(1, n_lines, 500): # read 500 lines at a time
 		print(i)
 		data = np.loadtxt(finput, dtype=str, skiprows=i, max_rows = 20, delimiter=',')
 		df_new = pd.DataFrame(data[np.where(data[:,0] != 'nameseq')], columns=colnames)
