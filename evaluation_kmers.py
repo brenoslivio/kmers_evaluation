@@ -316,9 +316,10 @@ def evaluate_model_holdout_tuning(classifier, model, finput):
 
 	df = pd.DataFrame(columns=colnames)
 
-	for i in range(1, n_lines, 1000): # read 500 lines at a time
+	row_loops = 500 # read # lines at a time
+	for i in range(1, n_lines, row_loops): 
 		print(i)
-		data = np.loadtxt(finput, dtype=str, skiprows=i, max_rows = 20, delimiter=',')
+		data = np.loadtxt(finput, dtype=str, skiprows=i, max_rows = row_loops, delimiter=',')
 		df_new = pd.DataFrame(data, columns=colnames)
 		df = df.append(df_new.astype(column_types), ignore_index=True)
 
@@ -432,10 +433,11 @@ def evaluate_model_cross(classifier, model, finput):
 
 	df = pd.DataFrame(columns=colnames)
 
-	for i in range(1, n_lines, 1000): # read 500 lines at a time
+	row_loops = 500 # read # lines at a time
+	for i in range(1, n_lines, row_loops): 
 		print(i)
-		data = np.loadtxt(finput, dtype=str, skiprows=i, max_rows = 20, delimiter=',')
-		df_new = pd.DataFrame(data, columns=colnames)
+		data = np.loadtxt(finput, dtype=str, skiprows=i, max_rows = row_loops, delimiter=',')
+		df_new = pd.DataFrame([data], columns=colnames)
 		df = df.append(df_new.astype(column_types), ignore_index=True)
 
 		del df_new
