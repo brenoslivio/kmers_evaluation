@@ -418,10 +418,17 @@ def evaluate_model_holdout_multi(classifier, model, finput):
 def evaluate_model_cross(classifier, model, finput):
 	#####################################
 	spark = SparkSession.builder \
-               .appName('SparkByExamples.com') \
-               .getOrCreate()
+			.appName('SparkByExamples.com') \
+			.config("spark.driver.memory","70G") \
+			.config("spark.executor.memory","70G") \
+			.config("spark.driver.maxResultSize", '128g') \
+			.config("spark.memory.offHeap.enabled", 'true') \
+			.config("spark.memory.offHeap.size", '30g') \
+			.getOrCreate()
 
-	df = spark.read.option(header = True).csv(finput)
+	dfSpark = spark.read.option('header', True).option("maxColumns", 1500000).csv(finput)
+
+	df = dfSpark.toPandas()
 
 	df = df[~df.nameseq.str.contains("nameseq")]
 
