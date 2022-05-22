@@ -316,19 +316,16 @@ def evaluate_model_holdout_tuning(classifier, model, finput):
 
 	df = pd.DataFrame(columns=colnames)
 
-	row_loops = 500 # read # lines at a time
+	row_loops = 250 # read # lines at a time
 	for i in range(1, n_lines, row_loops): 
 		print(i)
 		data = np.loadtxt(finput, dtype=str, skiprows=i, max_rows = row_loops, delimiter=',')
-		df_new = pd.DataFrame([data], columns=colnames) if row_loops - i == 1 else pd.DataFrame(data, columns=colnames)
+		df_new = pd.DataFrame([data[np.where(data[:,0] != 'nameseq')]], columns=colnames) if row_loops - i == 1 else pd.DataFrame(data[np.where(data[:,0] != 'nameseq')], columns=colnames)
 		df = df.append(df_new.astype(column_types), ignore_index=True)
 
 		del df_new
 		del data
 
-	df = df[~df.nameseq.str.contains("nameseq")]
-
-	# df = pd.read_csv(finput, header=None)	
 	labels = df.iloc[:, -1]
 	features = df[df.columns[1:(len(df.columns) - 1)]]
 	print(features)
@@ -433,18 +430,15 @@ def evaluate_model_cross(classifier, model, finput):
 
 	df = pd.DataFrame(columns=colnames)
 
-	row_loops = 500 # read # lines at a time
+	row_loops = 250 # read # lines at a time
 	for i in range(1, n_lines, row_loops): 
 		print(i)
 		data = np.loadtxt(finput, dtype=str, skiprows=i, max_rows = row_loops, delimiter=',')
-		df_new = pd.DataFrame([data], columns=colnames) if row_loops - i == 1 else pd.DataFrame(data, columns=colnames)
+		df_new = pd.DataFrame([data[np.where(data[:,0] != 'nameseq')]], columns=colnames) if row_loops - i == 1 else pd.DataFrame(data[np.where(data[:,0] != 'nameseq')], columns=colnames)
 		df = df.append(df_new.astype(column_types), ignore_index=True)
 
 		del df_new
 		del data
-
-	df = df[~df.nameseq.str.contains("nameseq")]
-	# df = pd.read_csv(finput, header=None)
 
 	X = df.iloc[:, 1:-1]
 	print(X)
