@@ -97,6 +97,7 @@ from imblearn.metrics import geometric_mean_score
 from sklearn.ensemble import StackingClassifier
 from sklearn.impute import SimpleImputer
 from skopt.space import Real, Categorical, Integer
+from pyspark.sql import SparkSession
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -416,29 +417,13 @@ def evaluate_model_holdout_multi(classifier, model, finput):
 
 def evaluate_model_cross(classifier, model, finput):
 	#####################################
-	colnames = np.loadtxt(finput, dtype=str, max_rows = 1, delimiter=',')
-	types = []
-	types.append(str)
+	spark = SparkSession.builder \
+               .appName('SparkByExamples.com') \
+               .getOrCreate()
 
-	for i in range(len(colnames) - 2):
-		types.append(np.float32)
+	df = spark.read.option(header = True).csv(finput)
 
-	types.append(str)
-	column_types = dict(zip(colnames, types))
-
-	n_lines = sum(1 for row in open(finput))
-
-	df = pd.DataFrame(columns=colnames)
-
-	row_loops = 100 # read # lines at a time
-	for i in range(1, n_lines, row_loops): 
-		print(i)
-		data = np.loadtxt(finput, dtype=str, skiprows=i, max_rows = row_loops, delimiter=',')
-		df_new = pd.DataFrame([data], columns=colnames) if row_loops - i == 1 else pd.DataFrame(data[np.where(data[:,0] != 'nameseq')], columns=colnames)
-		df = df.append(df_new.astype(column_types), ignore_index=True)
-
-		del df_new
-		del data
+	df = df[~df.nameseq.str.contains("nameseq")]
 
 	X = df.iloc[:, 1:-1]
 	print(X)
