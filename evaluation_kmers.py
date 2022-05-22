@@ -316,14 +316,16 @@ def evaluate_model_holdout_tuning(classifier, model, finput):
 
 	df = pd.DataFrame(columns=colnames)
 
-	for i in range(1, n_lines, 50): # read 20 lines at a time
+	for i in range(1, n_lines, 1000): # read 500 lines at a time
 		print(i)
 		data = np.loadtxt(finput, dtype=str, skiprows=i, max_rows = 20, delimiter=',')
-		df_new = pd.DataFrame(data[np.where(data[:,0] != 'nameseq')], columns=colnames)
+		df_new = pd.DataFrame(data, columns=colnames)
 		df = df.append(df_new.astype(column_types), ignore_index=True)
 
 		del df_new
 		del data
+
+	df = df[~df.nameseq.str.contains("nameseq")]
 
 	# df = pd.read_csv(finput, header=None)	
 	labels = df.iloc[:, -1]
@@ -433,6 +435,7 @@ def evaluate_model_cross(classifier, model, finput):
 	for i in range(1, n_lines, 1000): # read 500 lines at a time
 		print(i)
 		data = np.loadtxt(finput, dtype=str, skiprows=i, max_rows = 20, delimiter=',')
+		df_new = pd.DataFrame(data, columns=colnames)
 		df = df.append(df_new.astype(column_types), ignore_index=True)
 
 		del df_new
