@@ -443,9 +443,9 @@ def evaluate_model_cross(classifier, model, finput):
 
 	df = df[~df.nameseq.str.contains("nameseq")]
 	# df = pd.read_csv(finput, header=None)
-	X = df[df.columns[1:(len(df.columns) - 1)]]
+
+	X = df.iloc[:, 1:-1]
 	print(X)
-	# X = df.iloc[:, 1:-1]
 	y = df.iloc[:, -1]
 	# y = df['label']
 	print(y)
