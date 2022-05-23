@@ -445,10 +445,6 @@ def evaluate_model_cross(classifier, model, finput):
 	kfold = KFold(n_splits=10, shuffle=True, random_state=42)
 	scores = cross_validate(pipe, X, y, cv=kfold, scoring=scoring, n_jobs=-1)
 	save_measures(classifier, foutput, scores)
-	y_pred = cross_val_predict(pipe, X, y, cv=kfold, n_jobs=-1)
-	# conf_mat = confusion_matrix(y, y_pred)
-	# np.savetxt("scoresACC.csv", scores['test_ACC'], delimiter=",")
-	return
 
 ##########################################################################
 ##########################################################################
@@ -486,7 +482,7 @@ if __name__ == "__main__":
 		# "Adaboost" : AdaBoostClassifier(),
 		# "MLP" : MLPClassifier(),
 		# "Catboost" : CatBoostClassifier(thread_count=2, verbose= True),
-		#"Catboost" : CatBoostClassifier(iterations=1000, thread_count=-1, logging_level='Silent'),
+		"Catboost" : CatBoostClassifier(iterations=1000, thread_count=-1, logging_level='Silent'),
 		# "HistGradientBoosting" : HistGradientBoostingClassifier(random_state=63),
 		# "Stacking" : StackingClassifier(estimators = estimators, final_estimator = svm.SVC())
 		# "RandomForest" : RandomForestClassifier(random_state=63, n_estimators=300, max_features='sqrt', criterion='entropy', max_depth=10)
