@@ -7,7 +7,7 @@
 
 import operator
 from sklearn.decomposition import PCA
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.decomposition import TruncatedSVD
 # import sklearn
 import pandas as pd
 import warnings
@@ -439,7 +439,7 @@ def evaluate_model_cross(classifier, model, finput):
 	pipe = Pipeline(steps=[
 		('StandardScaler', StandardScaler()),
 		#('umap', UMAP(n_components=24, random_state=42)),
-		('lda', LinearDiscriminantAnalysis(n_components=1)),
+		('svd', TruncatedSVD(n_components=24)),
 		#('pca', PCA(n_components=24, random_state=42)),
 		('clf', model)])
 	scoring = {'ACC': 'accuracy', 'recall': 'recall', 'f1': 'f1', 'ACC_B': 'balanced_accuracy', 'kappa': make_scorer(cohen_kappa_score), 'gmean': make_scorer(geometric_mean_score)}
