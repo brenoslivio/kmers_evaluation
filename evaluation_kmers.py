@@ -99,7 +99,6 @@ from imblearn.metrics import geometric_mean_score
 from sklearn.ensemble import StackingClassifier
 from sklearn.impute import SimpleImputer
 from skopt.space import Real, Categorical, Integer
-from umap import UMAP
 import joblib
 import warnings
 warnings.filterwarnings("ignore")
@@ -440,7 +439,7 @@ def evaluate_model_cross(classifier, model, finput):
 	pipe = Pipeline(steps=[
 		('StandardScaler', StandardScaler()),
 		#('umap', UMAP(n_components=24, random_state=42)),
-		('lda', LinearDiscriminantAnalysis(n_components=1))
+		('lda', LinearDiscriminantAnalysis(n_components=1)),
 		#('pca', PCA(n_components=24, random_state=42)),
 		('clf', model)])
 	scoring = {'ACC': 'accuracy', 'recall': 'recall', 'f1': 'f1', 'ACC_B': 'balanced_accuracy', 'kappa': make_scorer(cohen_kappa_score), 'gmean': make_scorer(geometric_mean_score)}
