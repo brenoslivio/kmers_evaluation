@@ -489,7 +489,7 @@ if __name__ == "__main__":
 		# "HistGradientBoosting" : HistGradientBoostingClassifier(random_state=63),
 		# "Stacking" : StackingClassifier(estimators = estimators, final_estimator = svm.SVC())
 		# "RandomForest" : RandomForestClassifier(random_state=63, n_estimators=300, max_features='sqrt', criterion='entropy', max_depth=10)
-		"RandomForest" : RandomForestClassifier(random_state=63, n_estimators=100, njobs = -1),
+		"RandomForest" : RandomForestClassifier(random_state=63, n_estimators=100, n_jobs = -1),
 		# "MLP" : MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(100, 2), learning_rate_init=0.001, random_state=63),
 		# "Catboost" : CatBoostClassifier(iterations=100, random_seed=63, logging_level = 'Silent')
 	}
