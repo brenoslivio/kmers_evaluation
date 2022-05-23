@@ -98,7 +98,7 @@ from sklearn.ensemble import StackingClassifier
 from sklearn.impute import SimpleImputer
 from skopt.space import Real, Categorical, Integer
 import dask.dataframe as dd
-import dask_ml.model_selection.KFold as dKFold
+from dask.distributed import Client, progress
 import joblib
 import warnings
 warnings.filterwarnings("ignore")
@@ -429,12 +429,14 @@ def evaluate_model_cross(classifier, model, finput):
 	types.append(str)
 	column_types = dict(zip(colnames, types))
 
+	client = Client()
+
+	print(client)
+
 	df = dd.read_csv(finput, names = colnames, dtype = column_types)
 
-	X_dd = df.iloc[:, 1:-1]
-	X_dd.persist()
-	y_dd = df.iloc[:, -1]
-	y_dd.persist()
+	X_dd = df.iloc[:, 1:-1].persist()
+	y_dd = df.iloc[:, -1].persist()
 	
 	# y = df['label']
 
@@ -448,7 +450,7 @@ def evaluate_model_cross(classifier, model, finput):
 			('StandardScaler', StandardScaler()),
 			('clf', model)])
 		scoring = {'ACC': 'accuracy', 'recall': 'recall', 'f1': 'f1', 'ACC_B': 'balanced_accuracy', 'kappa': make_scorer(cohen_kappa_score), 'gmean': make_scorer(geometric_mean_score)}
-		kfold = dKFold(n_splits=10, shuffle=True, random_state=42)
+		kfold = KFold(n_splits=10, shuffle=True, random_state=42)
 		scores = cross_validate(pipe, X, y, cv=kfold, scoring=scoring)
 		save_measures(classifier, foutput, scores)
 		y_pred = cross_val_predict(pipe, X, y, cv=kfold)
