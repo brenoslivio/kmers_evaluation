@@ -427,19 +427,7 @@ def evaluate_model_cross(classifier, model, finput):
 	types.append(str)
 	column_types = dict(zip(colnames, types))
 
-	n_lines = sum(1 for row in open(finput))
-
-	df = pd.DataFrame(columns=colnames)
-
-	row_loops = 101 # read # lines at a time
-	for i in range(1, n_lines, row_loops): 
-		print(i)
-		data = np.loadtxt(finput, dtype=str, skiprows=i, max_rows = row_loops, delimiter=',')
-		df_new = pd.DataFrame(data, dtype = column_types, columns=colnames)
-		df = df.append(df_new, ignore_index=True)
-
-		del df_new
-		del data
+	df = pd.read_csv(finput, dtype = column_types, names = colnames)
 
 	X = df.iloc[:, 1:-1]
 	print(X)
