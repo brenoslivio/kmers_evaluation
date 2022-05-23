@@ -417,7 +417,7 @@ def evaluate_model_holdout_multi(classifier, model, finput):
 
 def evaluate_model_cross(classifier, model, finput):
 	#####################################
-	colnames = np.loadtxt(finput, dtype=str, max_rows = 1, delimiter=',')
+	colnames = np.loadtxt('D1/header.csv', dtype=str, max_rows = 1, delimiter=',')
 	types = []
 	types.append(str)
 
