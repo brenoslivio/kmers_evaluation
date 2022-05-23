@@ -429,17 +429,19 @@ def evaluate_model_cross(classifier, model, finput):
 	types.append(str)
 	column_types = dict(zip(colnames, types))
 
-	X = np.loadtxt(finput, dtype=np.float32, delimiter=',', usecols=np.arange(1, len(colnames) - 1)) 
+	X = np.loadtxt(finput, dtype=np.float32, delimiter=',', usecols=np.arange(1, len(colnames) - 1))
+	print(X) 
 	y = np.loadtxt(finput, dtype=str, delimiter=',', usecols=len(colnames) - 1)
+	print(y)
 
 	pipe = Pipeline(steps=[
 		('StandardScaler', StandardScaler()),
 		('clf', model)])
 	scoring = {'ACC': 'accuracy', 'recall': 'recall', 'f1': 'f1', 'ACC_B': 'balanced_accuracy', 'kappa': make_scorer(cohen_kappa_score), 'gmean': make_scorer(geometric_mean_score)}
 	kfold = KFold(n_splits=10, shuffle=True, random_state=42)
-	scores = cross_validate(pipe, X, y, cv=kfold, scoring=scoring)
+	scores = cross_validate(pipe, X, y, cv=kfold, scoring=scoring, n_jobs=-1)
 	save_measures(classifier, foutput, scores)
-	y_pred = cross_val_predict(pipe, X, y, cv=kfold)
+	y_pred = cross_val_predict(pipe, X, y, cv=kfold, n_jobs=-1)
 	conf_mat = (pd.crosstab(y, y_pred, rownames=["REAL"], colnames=["PREDITO"], margins=True))
 	# conf_mat = confusion_matrix(y, y_pred)
 	print(conf_mat)
@@ -486,7 +488,7 @@ if __name__ == "__main__":
 		# "HistGradientBoosting" : HistGradientBoostingClassifier(random_state=63),
 		# "Stacking" : StackingClassifier(estimators = estimators, final_estimator = svm.SVC())
 		# "RandomForest" : RandomForestClassifier(random_state=63, n_estimators=300, max_features='sqrt', criterion='entropy', max_depth=10)
-		"RandomForest" : RandomForestClassifier(random_state=63, n_estimators=100),
+		"RandomForest" : RandomForestClassifier(random_state=63, n_estimators=100, njobs = -1),
 		# "MLP" : MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(100, 2), learning_rate_init=0.001, random_state=63),
 		# "Catboost" : CatBoostClassifier(iterations=100, random_seed=63, logging_level = 'Silent')
 	}
