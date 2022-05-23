@@ -98,8 +98,7 @@ from imblearn.metrics import geometric_mean_score
 from sklearn.ensemble import StackingClassifier
 from sklearn.impute import SimpleImputer
 from skopt.space import Real, Categorical, Integer
-import dask.dataframe as dd
-from dask.distributed import Client, progress
+from umap import UMAP
 import joblib
 import warnings
 warnings.filterwarnings("ignore")
@@ -439,7 +438,8 @@ def evaluate_model_cross(classifier, model, finput):
 
 	pipe = Pipeline(steps=[
 		('StandardScaler', StandardScaler()),
-		('pca', PCA(n_components=24, random_state=42)),
+		('umap', UMAP(n_components=24, random_state=42)),
+		#('pca', PCA(n_components=24, random_state=42)),
 		('clf', model)])
 	scoring = {'ACC': 'accuracy', 'recall': 'recall', 'f1': 'f1', 'ACC_B': 'balanced_accuracy', 'kappa': make_scorer(cohen_kappa_score), 'gmean': make_scorer(geometric_mean_score)}
 	kfold = KFold(n_splits=10, shuffle=True, random_state=42)
@@ -486,7 +486,7 @@ if __name__ == "__main__":
 		# "HistGradientBoosting" : HistGradientBoostingClassifier(random_state=63),
 		# "Stacking" : StackingClassifier(estimators = estimators, final_estimator = svm.SVC())
 		# "RandomForest" : RandomForestClassifier(random_state=63, n_estimators=300, max_features='sqrt', criterion='entropy', max_depth=10)
-		"RandomForest" : RandomForestClassifier(random_state=63, n_estimators=100, n_jobs = -1),
+		#"RandomForest" : RandomForestClassifier(random_state=63, n_estimators=100, n_jobs = -1),
 		# "MLP" : MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(100, 2), learning_rate_init=0.001, random_state=63),
 		# "Catboost" : CatBoostClassifier(iterations=100, random_seed=63, logging_level = 'Silent')
 	}
