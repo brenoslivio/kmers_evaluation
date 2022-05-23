@@ -60,6 +60,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import chi2, mutual_info_classif
 from sklearn.preprocessing import Normalizer
+from sklearn.preprocessing import LabelEncoder
 from sklearn.linear_model import Perceptron
 from sklearn.ensemble import BaggingClassifier
 from sklearn.neighbors import KNeighborsClassifier
@@ -432,7 +433,7 @@ def evaluate_model_cross(classifier, model, finput):
 	X = np.loadtxt(finput, dtype=np.float32, delimiter=',', usecols=np.arange(1, len(colnames) - 1))
 	print(X) 
 	y = np.loadtxt(finput, dtype=str, delimiter=',', usecols=len(colnames) - 1)
-	le = preprocessing.LabelEncoder()
+	le = LabelEncoder()
 	y = le.fit_transform(y)
 	print(y)
 
