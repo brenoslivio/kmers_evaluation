@@ -430,6 +430,7 @@ def evaluate_model_cross(classifier, model, finput):
 	#n_lines = sum(1 for row in open(finput))
 
 	df = dd.read_csv(finput, dtype = column_types, names = colnames)
+	df = df.compute()
 
 	X = df.iloc[:, 1:-1]
 	print(X)
