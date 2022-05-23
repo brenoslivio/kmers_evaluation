@@ -430,7 +430,7 @@ def evaluate_model_cross(classifier, model, finput):
 	column_types = dict(zip(colnames, types))
 
 	X = np.loadtxt(finput, dtype=np.float32, delimiter=',', usecols=np.arange(1, len(colnames) - 1)) 
-	y = np.loadtxt(finput, dtype=np.int, delimiter=',', usecols=len(colnames) - 1)
+	y = np.loadtxt(finput, dtype=str, delimiter=',', usecols=len(colnames) - 1)
 
 	pipe = Pipeline(steps=[
 		('StandardScaler', StandardScaler()),
