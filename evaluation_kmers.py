@@ -419,7 +419,7 @@ def evaluate_model_holdout_multi(classifier, model, finput):
 
 def evaluate_model_cross(classifier, model, finput):
 	#####################################
-	colnames = np.loadtxt('D1/header.csv', dtype=str, max_rows = 1, delimiter=',')
+	colnames = np.loadtxt(finput.split('/')[0] + '/header.csv', dtype=str, max_rows = 1, delimiter=',')
 	types = []
 	types.append(str)
 
@@ -429,10 +429,8 @@ def evaluate_model_cross(classifier, model, finput):
 	types.append(str)
 	column_types = dict(zip(colnames, types))
 
-	df = pd.read_csv(finput, names=colnames, dtype=column_types)
-	
-	X = df.iloc[:, 1:-1]
-	y = df.iloc[:, -1]
+	X = np.loadtxt(finput, dtype=np.float32, delimiter=',', usecols=np.arange(1, len(colnames) - 1)) 
+	y = np.loadtxt(finput, dtype=np.int, delimiter=',', usecols=len(colnames) - 1)
 
 	pipe = Pipeline(steps=[
 		('StandardScaler', StandardScaler()),
