@@ -427,7 +427,7 @@ def evaluate_model_cross(classifier, model, finput):
 	types.append(str)
 	column_types = dict(zip(colnames, types))
 
-	df = pd.read_csv(finput, names = colnames, dtype = column_types)
+	df = dd.read_csv(finput, names = colnames, dtype = column_types)
 
 	X = df.iloc[:, 1:-1]
 	print(X)
@@ -487,7 +487,7 @@ if __name__ == "__main__":
 		# "Adaboost" : AdaBoostClassifier(),
 		# "MLP" : MLPClassifier(),
 		# "Catboost" : CatBoostClassifier(thread_count=2, verbose= True),
-		"Catboost" : CatBoostClassifier(iterations=1000, thread_count=-1, logging_level='Silent'),
+		#"Catboost" : CatBoostClassifier(iterations=1000, thread_count=-1, logging_level='Silent'),
 		# "HistGradientBoosting" : HistGradientBoostingClassifier(random_state=63),
 		# "Stacking" : StackingClassifier(estimators = estimators, final_estimator = svm.SVC())
 		# "RandomForest" : RandomForestClassifier(random_state=63, n_estimators=300, max_features='sqrt', criterion='entropy', max_depth=10)
