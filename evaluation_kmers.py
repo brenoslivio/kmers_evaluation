@@ -417,7 +417,7 @@ def evaluate_model_holdout_multi(classifier, model, finput):
 
 def evaluate_model_cross(classifier, model, finput):
 	#####################################
-	colnames = np.loadtxt('D1/header.csv', dtype=str, max_rows = 1, delimiter=',')
+	colnames = np.loadtxt(finput, dtype=str, max_rows = 1, delimiter=',')
 	types = []
 	types.append(str)
 
@@ -427,10 +427,19 @@ def evaluate_model_cross(classifier, model, finput):
 	types.append(str)
 	column_types = dict(zip(colnames, types))
 
-	#n_lines = sum(1 for row in open(finput))
+	n_lines = sum(1 for row in open(finput))
 
-	df = dd.read_csv(finput, dtype = column_types, names = colnames)
-	df = df.compute()
+	df = pd.DataFrame(columns=colnames)
+
+	row_loops = 101 # read # lines at a time
+	for i in range(1, n_lines, row_loops): 
+		print(i)
+		data = np.loadtxt(finput, dtype=str, skiprows=i, max_rows = row_loops, delimiter=',')
+		df_new = pd.DataFrame(data[np.where(data[:,0] != 'nameseq')], columns=colnames)
+		df = df.append(df_new.astype(column_types), ignore_index=True)
+
+		del df_new
+		del data
 
 	X = df.iloc[:, 1:-1]
 	print(X)
