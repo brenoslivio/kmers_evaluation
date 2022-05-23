@@ -427,7 +427,7 @@ def evaluate_model_cross(classifier, model, finput):
 	types.append(str)
 	column_types = dict(zip(colnames, types))
 
-	df = pd.read_csv(finput, dtype = column_types, names = colnames)
+	df = pd.read_csv(finput, names = colnames, dtype = column_types)
 
 	X = df.iloc[:, 1:-1]
 	print(X)
