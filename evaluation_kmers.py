@@ -98,6 +98,8 @@ from sklearn.ensemble import StackingClassifier
 from sklearn.impute import SimpleImputer
 from skopt.space import Real, Categorical, Integer
 import dask.dataframe as dd
+import dask_ml.model_selection.KFold as dKFold
+import joblib
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -429,27 +431,32 @@ def evaluate_model_cross(classifier, model, finput):
 
 	df = dd.read_csv(finput, names = colnames, dtype = column_types)
 
-	X = df.iloc[:, 1:-1]
-	print(X)
-	y = df.iloc[:, -1]
+	X_dd = df.iloc[:, 1:-1]
+	X_dd.persist()
+	y_dd = df.iloc[:, -1]
+	y_dd.persist()
+	
 	# y = df['label']
-	print(y)
-	#####################################
-	pipe = Pipeline(steps=[
-		('StandardScaler', StandardScaler()),
-		('clf', model)])
-	scoring = {'ACC': 'accuracy', 'recall': 'recall', 'f1': 'f1', 'ACC_B': 'balanced_accuracy', 'kappa': make_scorer(cohen_kappa_score), 'gmean': make_scorer(geometric_mean_score)}
-	kfold = KFold(n_splits=10, shuffle=True, random_state=42)
-	scores = cross_validate(pipe, X, y, cv=kfold, scoring=scoring)
-	save_measures(classifier, foutput, scores)
-	y_pred = cross_val_predict(pipe, X, y, cv=kfold)
-	conf_mat = (pd.crosstab(y, y_pred, rownames=["REAL"], colnames=["PREDITO"], margins=True))
-	# conf_mat = confusion_matrix(y, y_pred)
-	print(conf_mat)
+
+	with joblib.parallel_backend('dask'):
+		#####################################
+		X = X_dd.compute()
+		y = y_dd.compute()
+		print(X)
+		print(y)
+		pipe = Pipeline(steps=[
+			('StandardScaler', StandardScaler()),
+			('clf', model)])
+		scoring = {'ACC': 'accuracy', 'recall': 'recall', 'f1': 'f1', 'ACC_B': 'balanced_accuracy', 'kappa': make_scorer(cohen_kappa_score), 'gmean': make_scorer(geometric_mean_score)}
+		kfold = dKFold(n_splits=10, shuffle=True, random_state=42)
+		scores = cross_validate(pipe, X, y, cv=kfold, scoring=scoring)
+		save_measures(classifier, foutput, scores)
+		y_pred = cross_val_predict(pipe, X, y, cv=kfold)
+		conf_mat = (pd.crosstab(y, y_pred, rownames=["REAL"], colnames=["PREDITO"], margins=True))
+		# conf_mat = confusion_matrix(y, y_pred)
+		print(conf_mat)
 	# np.savetxt("scoresACC.csv", scores['test_ACC'], delimiter=",")
 	return
-
-
 
 ##########################################################################
 ##########################################################################
