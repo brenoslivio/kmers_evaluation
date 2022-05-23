@@ -439,16 +439,14 @@ def evaluate_model_cross(classifier, model, finput):
 
 	pipe = Pipeline(steps=[
 		('StandardScaler', StandardScaler()),
-		('pca', PCA(n_components=10, random_state=42)),
+		('pca', PCA(n_components=24, random_state=42)),
 		('clf', model)])
 	scoring = {'ACC': 'accuracy', 'recall': 'recall', 'f1': 'f1', 'ACC_B': 'balanced_accuracy', 'kappa': make_scorer(cohen_kappa_score), 'gmean': make_scorer(geometric_mean_score)}
 	kfold = KFold(n_splits=10, shuffle=True, random_state=42)
 	scores = cross_validate(pipe, X, y, cv=kfold, scoring=scoring, n_jobs=-1)
 	save_measures(classifier, foutput, scores)
 	y_pred = cross_val_predict(pipe, X, y, cv=kfold, n_jobs=-1)
-	conf_mat = (pd.crosstab(y, y_pred, rownames=["REAL"], colnames=["PREDITO"], margins=True))
 	# conf_mat = confusion_matrix(y, y_pred)
-	print(conf_mat)
 	# np.savetxt("scoresACC.csv", scores['test_ACC'], delimiter=",")
 	return
 
