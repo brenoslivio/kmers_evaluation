@@ -97,6 +97,7 @@ from imblearn.metrics import geometric_mean_score
 from sklearn.ensemble import StackingClassifier
 from sklearn.impute import SimpleImputer
 from skopt.space import Real, Categorical, Integer
+import dask.dataframe as dd
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -428,7 +429,7 @@ def evaluate_model_cross(classifier, model, finput):
 
 	#n_lines = sum(1 for row in open(finput))
 
-	df = pd.read_csv(finput, dtype = column_types, names = colnames)
+	df = dd.read_csv(finput, dtype = column_types, names = colnames)
 
 	X = df.iloc[:, 1:-1]
 	print(X)
