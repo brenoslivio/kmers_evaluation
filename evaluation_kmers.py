@@ -429,34 +429,35 @@ def evaluate_model_cross(classifier, model, finput):
 	types.append(str)
 	column_types = dict(zip(colnames, types))
 
-	client = Client()
+	n_lines = sum(1 for row in open(finput))
 
-	print(client)
+	df = pd.DataFrame(columns=colnames)
 
-	df = dd.read_csv(finput, names = colnames, dtype = column_types)
+	row_loops = 101 # read # lines at a time
+	for i in range(1, n_lines, row_loops): 
+		print(i)
+		data = np.loadtxt(finput, dtype=str, skiprows=i, max_rows = row_loops, delimiter=',')
+		df_new = pd.DataFrame(data, columns=colnames)
+		print(df_new)
+		df = df.append(df_new.astype(column_types), ignore_index=True)
 
-	X_dd = df.iloc[:, 1:-1].persist()
-	y_dd = df.iloc[:, -1].persist()
+		del df_new
+		del data
 	
-	# y = df['label']
+	X = df.iloc[:, 1:-1]
+	y = df.iloc[:, -1]
 
-	with joblib.parallel_backend('dask'):
-		#####################################
-		X = X_dd.compute()
-		y = y_dd.compute()
-		print(X)
-		print(y)
-		pipe = Pipeline(steps=[
-			('StandardScaler', StandardScaler()),
-			('clf', model)])
-		scoring = {'ACC': 'accuracy', 'recall': 'recall', 'f1': 'f1', 'ACC_B': 'balanced_accuracy', 'kappa': make_scorer(cohen_kappa_score), 'gmean': make_scorer(geometric_mean_score)}
-		kfold = KFold(n_splits=10, shuffle=True, random_state=42)
-		scores = cross_validate(pipe, X, y, cv=kfold, scoring=scoring)
-		save_measures(classifier, foutput, scores)
-		y_pred = cross_val_predict(pipe, X, y, cv=kfold)
-		conf_mat = (pd.crosstab(y, y_pred, rownames=["REAL"], colnames=["PREDITO"], margins=True))
-		# conf_mat = confusion_matrix(y, y_pred)
-		print(conf_mat)
+	pipe = Pipeline(steps=[
+		('StandardScaler', StandardScaler()),
+		('clf', model)])
+	scoring = {'ACC': 'accuracy', 'recall': 'recall', 'f1': 'f1', 'ACC_B': 'balanced_accuracy', 'kappa': make_scorer(cohen_kappa_score), 'gmean': make_scorer(geometric_mean_score)}
+	kfold = KFold(n_splits=10, shuffle=True, random_state=42)
+	scores = cross_validate(pipe, X, y, cv=kfold, scoring=scoring)
+	save_measures(classifier, foutput, scores)
+	y_pred = cross_val_predict(pipe, X, y, cv=kfold)
+	conf_mat = (pd.crosstab(y, y_pred, rownames=["REAL"], colnames=["PREDITO"], margins=True))
+	# conf_mat = confusion_matrix(y, y_pred)
+	print(conf_mat)
 	# np.savetxt("scoresACC.csv", scores['test_ACC'], delimiter=",")
 	return
 
