@@ -423,12 +423,12 @@ def evaluate_model_cross(classifier, model, finput):
 	#####################################
 	colnames = np.loadtxt(finput.split('/')[0] + '/header.csv', dtype=str, max_rows = 1, delimiter=',')
 
-	X = np.loadtxt(finput, dtype=np.float32, delimiter=',', usecols=np.arange(1, len(colnames) - 1))
-	print(X) 
 	y = np.loadtxt(finput, dtype=str, delimiter=',', usecols=len(colnames) - 1)
 	le = LabelEncoder()
-	y = le.fit_transform(y)
+	y = np.ravel(le.fit_transform(y))
 	print(y)
+	X = np.loadtxt(finput, dtype=np.float32, delimiter=',', usecols=np.arange(1, len(colnames) - 1))
+	print(X) 
 
 	reductions_pipe = { 'SVD' : Pipeline(steps=[
 		('StandardScaler', StandardScaler()),
