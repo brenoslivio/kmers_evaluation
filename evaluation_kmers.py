@@ -146,14 +146,14 @@ def preprocessing(dataset):
 
 def header(foutput):
 	file = open(foutput, 'a')
-	file.write("qParameter,Classifier,ACC,std_ACC,SE,std_SE,F1,std_F1,BACC,std_BACC,kappa,std_kappa,gmean,std_gmean")
+	file.write("qParameter,Reduction,Classifier,ACC,std_ACC,SE,std_SE,F1,std_F1,BACC,std_BACC,kappa,std_kappa,gmean,std_gmean")
 	file.write("\n")
 	return
 	
 	
-def save_measures(classifier, foutput, scores):
+def save_measures(reduction, classifier, foutput, scores):
 	file = open(foutput, 'a')
-	file.write("%s,%s,%0.4f,%0.2f,%0.4f,%0.2f,%0.4f,%0.2f,%0.4f,%0.2f,%0.4f,%0.2f,%0.4f,%0.2f" % (i, classifier, scores['test_ACC'].mean(), 
+	file.write("%s,%s,%s,%0.4f,%0.2f,%0.4f,%0.2f,%0.4f,%0.2f,%0.4f,%0.2f,%0.4f,%0.2f,%0.4f,%0.2f" % (i, reduction, classifier, scores['test_ACC'].mean(), 
 	+ scores['test_ACC'].std(), scores['test_recall'].mean(), scores['test_recall'].std(), 
 	+ scores['test_f1'].mean(), scores['test_f1'].std(), 
 	+ scores['test_ACC_B'].mean(), scores['test_ACC_B'].std(),
@@ -422,14 +422,6 @@ def evaluate_model_holdout_multi(classifier, model, finput):
 def evaluate_model_cross(classifier, model, finput):
 	#####################################
 	colnames = np.loadtxt(finput.split('/')[0] + '/header.csv', dtype=str, max_rows = 1, delimiter=',')
-	types = []
-	types.append(str)
-
-	for i in range(len(colnames) - 2):
-		types.append(np.float32)
-
-	types.append(str)
-	column_types = dict(zip(colnames, types))
 
 	X = np.loadtxt(finput, dtype=np.float32, delimiter=',', usecols=np.arange(1, len(colnames) - 1))
 	print(X) 
@@ -438,16 +430,22 @@ def evaluate_model_cross(classifier, model, finput):
 	y = le.fit_transform(y)
 	print(y)
 
-	pipe = Pipeline(steps=[
+	reductions_pipe = { 'SVD' : Pipeline(steps=[
 		('StandardScaler', StandardScaler()),
-		#('pca', PCA(n_components=24, random_state=42)),
+		('svd', TruncatedSVD(n_components=24, random_state=42)),
+		('clf', model)]),
+		'UMAP' : Pipeline(steps=[
+		('StandardScaler', StandardScaler()),
 		('umap', umap.UMAP(n_components=24, random_state=42)),
-		#('svd', TruncatedSVD(n_components=100, random_state=42)),
-		('clf', model)])
-	scoring = {'ACC': 'accuracy', 'recall': 'recall', 'f1': 'f1', 'ACC_B': 'balanced_accuracy', 'kappa': make_scorer(cohen_kappa_score), 'gmean': make_scorer(geometric_mean_score)}
-	kfold = KFold(n_splits=10, shuffle=True, random_state=42)
-	scores = cross_validate(pipe, X, y, cv=kfold, scoring=scoring, n_jobs=-1)
-	save_measures(classifier, foutput, scores)
+		('clf', model)])}
+
+	for reduction, pipe in reductions_pipe.items():
+		foutput = finput.split('/')[0] + reduction + '.csv'
+		header(foutput)
+		scoring = {'ACC': 'accuracy', 'recall': 'recall', 'f1': 'f1', 'ACC_B': 'balanced_accuracy', 'kappa': make_scorer(cohen_kappa_score), 'gmean': make_scorer(geometric_mean_score)}
+		kfold = KFold(n_splits=10, shuffle=True, random_state=42)
+		scores = cross_validate(pipe, X, y, cv=kfold, scoring=scoring, n_jobs=-1)
+		save_measures(reduction, classifier, foutput, scores)
 
 ##########################################################################
 ##########################################################################
@@ -460,13 +458,13 @@ if __name__ == "__main__":
 	print("\n")
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-i', '--input', help='csv format file, E.g., dataset.csv')
-	parser.add_argument('-o', '--output', help='CSV format file, E.g., test.csv')
+	#parser.add_argument('-o', '--output', help='CSV format file, E.g., test.csv')
 	# parser.add_argument('-k', '--kmer', help='Range of k-mer, E.g., 1-mer (1) or 2-mer (1, 2) ...')
 	# parser.add_argument('-e', '--entropy', help='Type of Entropy, E.g., Shannon or Tsallis')
 	# parser.add_argument('-q', '--parameter', help='Tsallis - q parameter')
 	args = parser.parse_args()
 	finput = str(args.input)
-	foutput = str(args.output)
+	#foutput = str(args.output)
 	estimators = [('rf', RandomForestClassifier()),
 				  ('Cat', CatBoostClassifier(logging_level='Silent')),
 				  ('LR', LogisticRegression()),
@@ -494,7 +492,7 @@ if __name__ == "__main__":
 		# "Catboost" : CatBoostClassifier(iterations=100, random_seed=63, logging_level = 'Silent')
 	}
 	# foutput = "results_Covid1.csv"
-	header(foutput)
+	
 	for i in np.arange(6.0, 6.1, 1.0):
 		i = round(i, 1)
 		print("Round: %s" % (i))
