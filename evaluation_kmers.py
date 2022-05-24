@@ -424,11 +424,15 @@ def evaluate_model_cross(classifier, model, finput):
 	colnames = np.loadtxt(finput.split('/')[0] + '/header.csv', dtype=str, max_rows = 1, delimiter=',')
 
 	y = np.loadtxt(finput, dtype=str, delimiter=',', usecols=len(colnames) - 1)
+	print(np.unique(y))
 	le = LabelEncoder()
 	y = np.ravel(le.fit_transform(y))
+
 	print(y)
+	print(y.shape)
 	X = np.loadtxt(finput, dtype=np.float32, delimiter=',', usecols=np.arange(1, len(colnames) - 1))
-	print(X) 
+	print(X)
+	print(X.shape)
 
 	reductions_pipe = { 'SVD' : Pipeline(steps=[
 		('StandardScaler', StandardScaler()),
@@ -493,7 +497,7 @@ if __name__ == "__main__":
 	}
 	# foutput = "results_Covid1.csv"
 	
-	datasets = ['D5/kmain.csv', 'D7/kmain.csv', 'D8/kmain.csv']
+	datasets = ['D1/kmain.csv', 'D5/kmain.csv', 'D7/kmain.csv', 'D8/kmain.csv']
 
 	for i in np.arange(6.0, 6.1, 1.0):
 		i = round(i, 1)
