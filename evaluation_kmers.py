@@ -8,6 +8,7 @@
 import operator
 from sklearn.decomposition import PCA
 from sklearn.decomposition import TruncatedSVD
+import umap
 from sklearn.manifold import TSNE
 # import sklearn
 import pandas as pd
@@ -440,9 +441,8 @@ def evaluate_model_cross(classifier, model, finput):
 	pipe = Pipeline(steps=[
 		('StandardScaler', StandardScaler()),
 		#('pca', PCA(n_components=24, random_state=42)),
-		#('umap', UMAP(n_components=24, random_state=42)),
-		('svd', TruncatedSVD(n_components=100, random_state=42)),
-		('tsne', TSNE(n_components=24, init='random', random_state=42, n_jobs=-1)),
+		('umap', umap.UMAP(n_components=24, random_state=42)),
+		#('svd', TruncatedSVD(n_components=100, random_state=42)),
 		('clf', model)])
 	scoring = {'ACC': 'accuracy', 'recall': 'recall', 'f1': 'f1', 'ACC_B': 'balanced_accuracy', 'kappa': make_scorer(cohen_kappa_score), 'gmean': make_scorer(geometric_mean_score)}
 	kfold = KFold(n_splits=10, shuffle=True, random_state=42)
