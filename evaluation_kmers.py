@@ -440,7 +440,7 @@ def evaluate_model_cross(classifier, model, finput):
 		('clf', model)])}
 
 	for reduction, pipe in reductions_pipe.items():
-		foutput = finput.split('/')[0] + reduction + '.csv'
+		foutput = finput.split('/')[0] + '/' + reduction + '.csv'
 		header(foutput)
 		scoring = {'ACC': 'accuracy', 'recall': 'recall', 'f1': 'f1', 'ACC_B': 'balanced_accuracy', 'kappa': make_scorer(cohen_kappa_score), 'gmean': make_scorer(geometric_mean_score)}
 		kfold = KFold(n_splits=10, shuffle=True, random_state=42)
@@ -456,14 +456,14 @@ if __name__ == "__main__":
 	print("##########              Author: Robson Parmezan Bonidia                 ###########")
 	print("###################################################################################")
 	print("\n")
-	parser = argparse.ArgumentParser()
-	parser.add_argument('-i', '--input', help='csv format file, E.g., dataset.csv')
+	#parser = argparse.ArgumentParser()
+	#parser.add_argument('-i', '--input', help='csv format file, E.g., dataset.csv')
 	#parser.add_argument('-o', '--output', help='CSV format file, E.g., test.csv')
 	# parser.add_argument('-k', '--kmer', help='Range of k-mer, E.g., 1-mer (1) or 2-mer (1, 2) ...')
 	# parser.add_argument('-e', '--entropy', help='Type of Entropy, E.g., Shannon or Tsallis')
 	# parser.add_argument('-q', '--parameter', help='Tsallis - q parameter')
-	args = parser.parse_args()
-	finput = str(args.input)
+	#args = parser.parse_args()
+	#finput = str(args.input)
 	#foutput = str(args.output)
 	estimators = [('rf', RandomForestClassifier()),
 				  ('Cat', CatBoostClassifier(logging_level='Silent')),
@@ -493,17 +493,21 @@ if __name__ == "__main__":
 	}
 	# foutput = "results_Covid1.csv"
 	
+	datasets = ['D3/kmain.csv', 'D4/kmain.csv', 'D5/kmain.csv', 'D7/kmain.csv', 'D8/kmain.csv']
+
 	for i in np.arange(6.0, 6.1, 1.0):
 		i = round(i, 1)
 		print("Round: %s" % (i))
 		# finput = "COVID-19/q/" + str(i) + ".csv"
 		# finput = "train_other_viruses.csv"
-		print(finput)
+
 		for classifier, model in experiments.items():
 			# print(classifier)
 			# print(model)
 			#evaluate_model_holdout_tuning(classifier, model, finput)
-			evaluate_model_cross(classifier, model, finput)
+			for dataset in datasets:
+				print(dataset)
+				evaluate_model_cross(classifier, model, dataset)
 			# evaluate_model_holdout(classifier, model, finput, finput_two)
 			# evaluate_model_holdout_multi(classifier, model, finput)
 ##########################################################################
