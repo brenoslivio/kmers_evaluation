@@ -497,7 +497,7 @@ if __name__ == "__main__":
 	}
 	# foutput = "results_Covid1.csv"
 	
-	datasets = ['D3/kmain.csv', 'D7/kmain.csv', 'D8/kmain.csv']
+	datasets = ['D5/kmers.csv', 'D7/kmain.csv', 'D8/kmain.csv']
 
 	for i in np.arange(6.0, 6.1, 1.0):
 		i = round(i, 1)
