@@ -425,7 +425,6 @@ def evaluate_model_cross(classifier, model, finput):
 
 	y = np.loadtxt(finput, dtype=str, delimiter=',', usecols=len(colnames) - 1)
 	pos = np.where(y == '0.0')
-	print(y[pos])
 	#y = y[pos]
 	print(np.unique(y))
 	le = LabelEncoder()
