@@ -419,7 +419,7 @@ def evaluate_model_holdout_multi(classifier, model, finput):
 	return
 
 
-def evaluate_model_cross(classifier, model, finput):
+def evaluate_model_cross_kmer(classifier, model, finput):
 	#####################################
 	colnames = np.loadtxt(finput.split('/')[0] + '/header.csv', dtype=str, max_rows = 1, delimiter=',')
 
@@ -453,6 +453,33 @@ def evaluate_model_cross(classifier, model, finput):
 		kfold = KFold(n_splits=10, shuffle=True, random_state=42)
 		scores = cross_validate(pipe, X, y, cv=kfold, scoring=scoring, n_jobs=-1)
 		save_measures(reduction, classifier, foutput, scores)
+
+def evaluate_model_cross_tsallis(classifier, model, finput):
+	#####################################
+	data = pd.read_csv(finput)
+
+	X = data.iloc[:,1:-1]
+	print(X)
+	print(X.shape)
+
+	y = data.iloc[:,-1]
+	print(np.unique(y))
+	le = LabelEncoder()
+	y = np.ravel(le.fit_transform(y))
+	print(y)
+	print(y.shape)
+
+	pipe =  Pipeline(steps=[
+		('StandardScaler', StandardScaler()),
+		('clf', model)
+		])
+
+	foutput = finput.split('/')[0] + '/tsallis.csv'
+	header(foutput)
+	scoring = {'ACC': 'accuracy', 'recall': 'recall', 'f1': 'f1', 'ACC_B': 'balanced_accuracy', 'kappa': make_scorer(cohen_kappa_score), 'gmean': make_scorer(geometric_mean_score)}
+	kfold = KFold(n_splits=10, shuffle=True, random_state=42)
+	scores = cross_validate(pipe, X, y, cv=kfold, scoring=scoring, n_jobs=-1)
+	save_measures('Tsallis', classifier, foutput, scores)
 
 ##########################################################################
 ##########################################################################
@@ -500,7 +527,7 @@ if __name__ == "__main__":
 	}
 	# foutput = "results_Covid1.csv"
 	
-	datasets = ['D5/kmain.csv']
+	datasets = ['D1/2.3.csv', 'D2/4.0.csv', 'D3/1.1.csv', 'D5/3.csv', 'D7/3.csv', 'D8/1.1.csv']
 
 	for i in np.arange(6.0, 6.1, 1.0):
 		i = round(i, 1)
@@ -514,7 +541,8 @@ if __name__ == "__main__":
 			#evaluate_model_holdout_tuning(classifier, model, finput)
 			for dataset in datasets:
 				print(dataset)
-				evaluate_model_cross(classifier, model, dataset)
+				#evaluate_model_cross_kmer(classifier, model, dataset)
+				evaluate_model_cross_tsallis(classifier, model, dataset)
 			# evaluate_model_holdout(classifier, model, finput, finput_two)
 			# evaluate_model_holdout_multi(classifier, model, finput)
 ##########################################################################
