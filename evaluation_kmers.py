@@ -433,7 +433,7 @@ def evaluate_model_cross(classifier, model, finput):
 	print(y.shape)
 
 	X = np.loadtxt(finput, dtype=np.float32, delimiter=',', usecols=np.arange(1, len(colnames) - 1))
-	X = X[pos, :]
+	X = X[pos, :][0]
 	print(X)
 	print(X.shape)
 
