@@ -424,8 +424,8 @@ def evaluate_model_cross(classifier, model, finput):
 	colnames = np.loadtxt(finput.split('/')[0] + '/header.csv', dtype=str, max_rows = 1, delimiter=',')
 
 	y = np.loadtxt(finput, dtype=str, delimiter=',', usecols=len(colnames) - 1)
-	pos = np.where(y == '0.0')
-	#y = y[pos]
+	pos = np.where(y != '0.0')
+	y = y[pos]
 	print(np.unique(y))
 	le = LabelEncoder()
 	y = np.ravel(le.fit_transform(y))
