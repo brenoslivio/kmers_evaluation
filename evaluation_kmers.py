@@ -16,7 +16,6 @@ import warnings
 import numpy as np
 import os
 import argparse
-import autosklearn.classification
 # import catboost
 # from keras.models import Sequential
 # from keras.layers import Dense
@@ -146,16 +145,15 @@ def preprocessing(dataset):
 
 def header(foutput):
 	file = open(foutput, 'a')
-	file.write("qParameter,Reduction,Classifier,ACC,std_ACC,SE,std_SE,F1,std_F1,BACC,std_BACC,kappa,std_kappa,gmean,std_gmean")
+	file.write("Reduction,Classifier,ACC,std_ACC,SE,std_SE,F1,std_F1,BACC,std_BACC,kappa,std_kappa,gmean,std_gmean")
 	file.write("\n")
 	return
 	
-	
 def save_measures(reduction, classifier, foutput, scores):
 	file = open(foutput, 'a')
-	file.write("%s,%s,%s,%0.4f,%0.2f,%0.4f,%0.2f,%0.4f,%0.2f,%0.4f,%0.2f,%0.4f,%0.2f,%0.4f,%0.2f" % (i, reduction, classifier, scores['test_ACC'].mean(), 
-	+ scores['test_ACC'].std(), scores['test_recall'].mean(), scores['test_recall'].std(), 
-	+ scores['test_f1'].mean(), scores['test_f1'].std(), 
+	file.write("%s,%s,%0.4f,%0.2f,%0.4f,%0.2f,%0.4f,%0.2f,%0.4f,%0.2f,%0.4f,%0.2f,%0.4f,%0.2f" % (reduction, classifier, scores['test_ACC'].mean(), 
+	+ scores['test_ACC'].std(), scores['test_recall_macro'].mean(), scores['test_recall_macro'].std(), 
+	+ scores['test_f1_macro'].mean(), scores['test_f1_macro'].std(), 
 	+ scores['test_ACC_B'].mean(), scores['test_ACC_B'].std(),
 	+ scores['test_kappa'].mean(), scores['test_kappa'].std(),
 	+ scores['test_gmean'].mean(), scores['test_gmean'].std()))
@@ -449,7 +447,7 @@ def evaluate_model_cross_kmer(classifier, model, finput):
 	for reduction, pipe in reductions_pipe.items():
 		foutput = finput.split('/')[0] + '/' + reduction + '.csv'
 		header(foutput)
-		scoring = {'ACC': 'accuracy', 'recall': 'recall', 'f1': 'f1', 'ACC_B': 'balanced_accuracy', 'kappa': make_scorer(cohen_kappa_score), 'gmean': make_scorer(geometric_mean_score)}
+		scoring = {'ACC': 'accuracy', 'recall_macro': make_scorer(recall_score, average='macro'), 'f1_macro': make_scorer(f1_score, average='macro'), 'ACC_B': 'balanced_accuracy', 'kappa': make_scorer(cohen_kappa_score), 'gmean': make_scorer(geometric_mean_score)}
 		kfold = KFold(n_splits=10, shuffle=True, random_state=42)
 		scores = cross_validate(pipe, X, y, cv=kfold, scoring=scoring, n_jobs=-1)
 		save_measures(reduction, classifier, foutput, scores)
@@ -458,6 +456,8 @@ def evaluate_model_cross_tsallis(classifier, model, finput):
 	#####################################
 	data = pd.read_csv(finput)
 
+	data = data[~data.nameseq.str.contains("nameseq")]
+
 	X = data.iloc[:,1:-1]
 	print(X)
 	print(X.shape)
@@ -465,7 +465,8 @@ def evaluate_model_cross_tsallis(classifier, model, finput):
 	y = data.iloc[:,-1]
 	print(np.unique(y))
 	le = LabelEncoder()
-	y = np.ravel(le.fit_transform(y))
+	y = le.fit_transform(y)
+	print(np.unique(y))
 	print(y)
 	print(y.shape)
 
@@ -474,9 +475,9 @@ def evaluate_model_cross_tsallis(classifier, model, finput):
 		('clf', model)
 		])
 
-	foutput = finput.split('/')[0] + '/tsallis.csv'
+	foutput = finput.split('/')[0] + '/results/tsallis.csv'
 	header(foutput)
-	scoring = {'ACC': 'accuracy', 'recall': 'recall', 'f1': 'f1', 'ACC_B': 'balanced_accuracy', 'kappa': make_scorer(cohen_kappa_score), 'gmean': make_scorer(geometric_mean_score)}
+	scoring = {'ACC': 'accuracy', 'recall_macro': make_scorer(recall_score, average='macro'), 'f1_macro': make_scorer(f1_score, average='macro'), 'ACC_B': 'balanced_accuracy', 'kappa': make_scorer(cohen_kappa_score), 'gmean': make_scorer(geometric_mean_score)}
 	kfold = KFold(n_splits=10, shuffle=True, random_state=42)
 	scores = cross_validate(pipe, X, y, cv=kfold, scoring=scoring, n_jobs=-1)
 	save_measures('Tsallis', classifier, foutput, scores)
@@ -527,23 +528,24 @@ if __name__ == "__main__":
 	}
 	# foutput = "results_Covid1.csv"
 	
-	datasets = ['D1/2.3.csv', 'D2/4.0.csv', 'D3/1.1.csv', 'D5/3.csv', 'D7/3.csv', 'D8/1.1.csv']
+	
 
-	for i in np.arange(6.0, 6.1, 1.0):
-		i = round(i, 1)
-		print("Round: %s" % (i))
 		# finput = "COVID-19/q/" + str(i) + ".csv"
 		# finput = "train_other_viruses.csv"
+	# q = 1.0
 
-		for classifier, model in experiments.items():
-			# print(classifier)
-			# print(model)
-			#evaluate_model_holdout_tuning(classifier, model, finput)
-			for dataset in datasets:
-				print(dataset)
-				#evaluate_model_cross_kmer(classifier, model, dataset)
-				evaluate_model_cross_tsallis(classifier, model, dataset)
+	# for n in range(91):
+	# 	q = round(q, 1)
+	for classifier, model in experiments.items():
+		# print(classifier)
+		# print(model)
+		#evaluate_model_holdout_tuning(classifier, model, finput)
+		dataset = 'D9/kmain.csv'
+		print(dataset)
+		evaluate_model_cross_kmer(classifier, model, dataset)
+		#evaluate_model_cross_tsallis(classifier, model, dataset)
 			# evaluate_model_holdout(classifier, model, finput, finput_two)
 			# evaluate_model_holdout_multi(classifier, model, finput)
+		# q += 0.1
 ##########################################################################
 ##########################################################################
